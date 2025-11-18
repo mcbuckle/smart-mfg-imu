@@ -1,11 +1,10 @@
-import socket
 from curses import window
 from datetime import datetime
 from typing import ContextManager
 
 from package.client import Client
 
-from imu import IMUData
+from .BaseIMU import IMUData
 
 
 class DataWriter(ContextManager):
@@ -14,7 +13,7 @@ class DataWriter(ContextManager):
         csv_fname=f"data/bno08X-{datetime.now().isoformat()}.csv",
         mqtt_broker_ip="127.0.0.1",
         mqtt_broker_port=1883,
-        device_id="joint-1", # TODO: Add config files or smth
+        device_id="joint-1",  # TODO: Add config files or smth
         scr: window | None = None,
     ):
         self.csv_fname = csv_fname

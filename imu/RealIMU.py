@@ -6,7 +6,6 @@ import board
 import busio
 import numpy as np
 from adafruit_bno08x import (
-    BNO_REPORT_GEOMAGNETIC_ROTATION_VECTOR,
     BNO_REPORT_GYROSCOPE,
     BNO_REPORT_LINEAR_ACCELERATION,
     BNO_REPORT_MAGNETOMETER,
@@ -15,72 +14,62 @@ from adafruit_bno08x import (
 from adafruit_bno08x.i2c import BNO08X_I2C
 from typing_extensions import override
 
-
-@dataclass
-class IMUData:
-    """Convenience class for keeping data read from the IMU"""
-
-    dev_id: str
-    time: float
-
-    accel_x: float
-    accel_y: float
-    accel_z: float
-
-    gyro_x: float
-    gyro_y: float
-    gyro_z: float
-
-    mag_x: float
-    mag_y: float
-    mag_z: float
-
-    yaw: float
-    pitch: float
-    roll: float
-
-    @override
-    def __str__(self):
-        return (
-            f"{self.dev_id},{self.time},{self.accel_x},{self.accel_y},{self.accel_z},"
-            + f"{self.gyro_x},{self.gyro_y},{self.gyro_z},{self.mag_x},{self.mag_y},"
-            + f"{self.mag_z},{self.yaw},{self.pitch},{self.roll}"
-        )
+from .BaseIMU import BaseIMU
+from .IMUData import IMUData
 
 
-class BNO08X_YPR(BNO08X_I2C):
+class BNO08X_YPR(BNO08X_I2C, BaseIMU):
     def __init__(
         self,
         *args,
         report_interval_ms=10,
         **kwargs,
     ):
-        # Sometimes, the IMU can have an address
-        # that is different from what the library expects
-        print("constructed bno class")
+        # The BNO08X can be at either address 0x4A or 0x4B
+        # The adafruit library expects 0x4A, but we typically use 0x4B
         try:
-            super().__init__(*args, **kwargs)
-        except:
             super().__init__(address=0x4B, *args, **kwargs)
+        except ValueError as _:
+            try:
+                super().__init__(*args, **kwargs)
+            except ValueError as _:
+                print(
+                    "Could not establish connection to the IMU.\n"
+                    + "Please check the physical connection!"
+                )
 
-        # report_interval is in microseconds
-        # so all of these are 10 ms (the default is 50ms)
-        self.enable_feature(
-            BNO_REPORT_LINEAR_ACCELERATION, report_interval=report_interval_ms * 1000
-        )
-        self.enable_feature(
-            BNO_REPORT_GYROSCOPE, report_interval=report_interval_ms * 1000
-        )
-        self.enable_feature(
-            BNO_REPORT_MAGNETOMETER, report_interval=report_interval_ms * 1000
-        )
-        self.enable_feature(
-            BNO_REPORT_ROTATION_VECTOR, report_interval=report_interval_ms * 1000
-        )
-        self.enable_feature(
-            BNO_REPORT_GEOMAGNETIC_ROTATION_VECTOR,
-            report_interval=report_interval_ms * 1000,
-        )
+        try:
+            # report_interval is in microseconds
+            # the library's default is 50ms, but ours is 10ms
+            self.enable_feature(
+                BNO_REPORT_LINEAR_ACCELERATION,
+                report_interval=report_interval_ms * 1000,
+            )
+            self.enable_feature(
+                BNO_REPORT_GYROSCOPE, report_interval=report_interval_ms * 1000
+            )
+            self.enable_feature(
+                BNO_REPORT_MAGNETOMETER, report_interval=report_interval_ms * 1000
+            )
+            self.enable_feature(
+                BNO_REPORT_ROTATION_VECTOR, report_interval=report_interval_ms * 1000
+            )
+
+            print("IMU connection successfully initialized")
+        except RuntimeError as e:
+            feature_names = {
+                BNO_REPORT_LINEAR_ACCELERATION: "Linear Acceleration",
+                BNO_REPORT_GYROSCOPE: "Gyroscope",
+                BNO_REPORT_MAGNETOMETER: "Magnetometer",
+                BNO_REPORT_ROTATION_VECTOR: "Rotation Vector",
+            }
+            print(
+                "One of the features couldn't be enabled. Check the physical connection to the IMU"
+            )
+            print(
+                "Feature that could not be enabled: "
+                + f"{feature_names[e.args[1]] if e.args[1] in feature_names else e.args[1]}"
+            )
 
     def read_data(self) -> IMUData:
         """

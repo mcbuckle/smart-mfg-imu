@@ -2,18 +2,16 @@ import time
 from curses import curs_set, window
 from itertools import count
 
-from DataWriter import DataWriter
-from imu import IMU
+from .BaseIMU import BaseIMU
+from .DataWriter import DataWriter
 
 
-def unattended_reading():
+def unattended_reading(bno: BaseIMU):
     """
     The function that will read, log, and send the data.
     For 'normal' use
     """
     with DataWriter(mqtt_broker_ip="192.168.1.76") as writer:
-        bno = IMU.get_conn()
-
         interval_ms = 10
         t0 = time.time_ns()
         timer = count(t0, int(interval_ms * 1e6))
@@ -27,14 +25,12 @@ def unattended_reading():
                 pass
 
 
-def attended_reading(scr: window):
+def attended_reading(scr: window, bno: BaseIMU):
     """
     The function that will read, log, and display the data.
     For 'ui' use
     """
     with DataWriter(mqtt_broker_ip="192.168.1.76", scr=scr) as writer:
-        bno = IMU.get_conn()
-
         scr.addstr(0, 0, "Basic reading")
         curs_set(False)
 
