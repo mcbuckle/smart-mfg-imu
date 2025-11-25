@@ -39,16 +39,6 @@ class BaseIMU(ABC):
         pitch = np.degrees(pitch)
         roll = np.degrees(roll)
 
-        # I would wrap the yaw, but it gives incorrect results if I do that
-        # if pitch > 0:
-        #     pitch = 180 - pitch
-        # else:
-        #     pitch = abs(pitch)
-        # if roll > 0:
-        #     roll = 180 - roll
-        # else:
-        #     roll = abs(roll)
-
         return tuple(np.round((yaw, pitch, roll), decimals=3))
 
 
