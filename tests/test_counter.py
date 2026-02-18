@@ -57,5 +57,6 @@ def test_data_writer_includes_counter_in_csv_and_mqtt(monkeypatch, tmp_path):
 
     lines = output_csv.read_text(encoding="utf-8").splitlines()
 
-    assert lines[0] == "counter,dev_id,time_ms,datetime,accel_x,accel_y,accel_z,gyro_x,gyro_y,gyro_z,mag_x,mag_y,mag_z,yaw,pitch,roll"
-    assert lines[1].startswith("1523,test-device,1711111111111.0,")
+    assert lines[0] == "counter,time_ms,datetime,dev_id,accel_x,accel_y,accel_z,gyro_x,gyro_y,gyro_z,mag_x,mag_y,mag_z,yaw,pitch,roll"
+    assert lines[1].startswith("1523,1711111111111.0,")
+    assert ",test-device," in lines[1]

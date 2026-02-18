@@ -34,7 +34,7 @@ class DataWriter(ContextManager):
     def __enter__(self):
         self.csv_file = open(self.csv_fname, "w+")
         self.csv_file.write(
-            "counter,dev_id,time_ms,datetime,"
+            "counter,time_ms,datetime,dev_id,"
             + "accel_x,accel_y,accel_z,"
             + "gyro_x,gyro_y,gyro_z,"
             + "mag_x,mag_y,mag_z,"
@@ -97,14 +97,14 @@ class DataWriter(ContextManager):
         """Write one CSV row.
 
         CSV field order:
-        counter,dev_id,time_ms,datetime,
+        counter,time_ms,datetime,dev_id,
         accel_x,accel_y,accel_z,
         gyro_x,gyro_y,gyro_z,
         mag_x,mag_y,mag_z,
         yaw,pitch,roll
         """
         out = (
-            f"{data.counter},{data.dev_id},{data.time},{datetime.fromtimestamp(data.time / 1000)},{data.accel_x},{data.accel_y},{data.accel_z},"
+            f"{data.counter},{data.time},{datetime.fromtimestamp(data.time / 1000)},{data.dev_id},{data.accel_x},{data.accel_y},{data.accel_z},"
             + f"{data.gyro_x},{data.gyro_y},{data.gyro_z},{data.mag_x},{data.mag_y},"
             + f"{data.mag_z},{data.yaw},{data.pitch},{data.roll}"
         )

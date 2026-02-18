@@ -26,7 +26,7 @@ Each IMU sample now includes a per-session monotonically increasing `counter` th
 
 CSV header:
 
-`counter,dev_id,time_ms,datetime,accel_x,accel_y,accel_z,gyro_x,gyro_y,gyro_z,mag_x,mag_y,mag_z,yaw,pitch,roll`
+`counter,time_ms,datetime,dev_id,accel_x,accel_y,accel_z,gyro_x,gyro_y,gyro_z,mag_x,mag_y,mag_z,yaw,pitch,roll`
 
 MQTT payload order:
 
