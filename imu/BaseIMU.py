@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from threading import Lock
 
 import numpy as np
 
@@ -6,9 +7,19 @@ from .IMUData import IMUData
 
 
 class BaseIMU(ABC):
+    def __init__(self, counter_start: int = 0):
+        self.__sample_counter = counter_start
+        self.__counter_lock = Lock()
+
     @abstractmethod
     def read_data(self) -> IMUData:
         pass
+
+    def _next_counter(self) -> int:
+        with self.__counter_lock:
+            counter = self.__sample_counter
+            self.__sample_counter += 1
+            return counter
 
     def _normalize_quaternion(self, q: tuple[float, float, float, float]):
             w, x, y, z = q

@@ -1,6 +1,10 @@
-from curses import window
 from datetime import datetime
-from typing import ContextManager
+from typing import Any, ContextManager
+
+try:
+    from curses import window
+except ModuleNotFoundError:
+    window = Any
 
 from package.client import Client
 
@@ -8,6 +12,11 @@ from .BaseIMU import IMUData
 
 
 class DataWriter(ContextManager):
+    """Writes IMU samples to CSV and MQTT.
+
+    Output schema is intentionally stable and starts with `counter`.
+    """
+
     def __init__(
         self,
         csv_fname=f"data/bno08X-{datetime.now().isoformat()}.csv",
@@ -25,7 +34,7 @@ class DataWriter(ContextManager):
     def __enter__(self):
         self.csv_file = open(self.csv_fname, "w+")
         self.csv_file.write(
-            "dev_id,time_ms,datetime,"
+            "counter,dev_id,time_ms,datetime,"
             + "accel_x,accel_y,accel_z,"
             + "gyro_x,gyro_y,gyro_z,"
             + "mag_x,mag_y,mag_z,"
@@ -85,16 +94,34 @@ class DataWriter(ContextManager):
             self._output_mqtt(data)
 
     def _output_to_csv(self, data: IMUData):
+        """Write one CSV row.
+
+        CSV field order:
+        counter,dev_id,time_ms,datetime,
+        accel_x,accel_y,accel_z,
+        gyro_x,gyro_y,gyro_z,
+        mag_x,mag_y,mag_z,
+        yaw,pitch,roll
+        """
         out = (
-            f"{data.dev_id},{data.time},{datetime.fromtimestamp(data.time / 1000)},{data.accel_x},{data.accel_y},{data.accel_z},"
+            f"{data.counter},{data.dev_id},{data.time},{datetime.fromtimestamp(data.time / 1000)},{data.accel_x},{data.accel_y},{data.accel_z},"
             + f"{data.gyro_x},{data.gyro_y},{data.gyro_z},{data.mag_x},{data.mag_y},"
             + f"{data.mag_z},{data.yaw},{data.pitch},{data.roll}"
         )
         self.csv_file.write(out + "\n")
 
     def _output_mqtt(self, data: IMUData):
+        """Publish one MQTT payload.
+
+        MQTT field order:
+        counter,time_ms,
+        accel_x,accel_y,accel_z,
+        gyro_x,gyro_y,gyro_z,
+        mag_x,mag_y,mag_z,
+        yaw,pitch,roll
+        """
         self.mqtt_client.publish(
-            f"{data.time},{data.accel_x},{data.accel_y},{data.accel_z},"
+            f"{data.counter},{data.time},{data.accel_x},{data.accel_y},{data.accel_z},"
             + f"{data.gyro_x},{data.gyro_y},{data.gyro_z},{data.mag_x},{data.mag_y},"
             + f"{data.mag_z},{data.yaw},{data.pitch},{data.roll}"
         )

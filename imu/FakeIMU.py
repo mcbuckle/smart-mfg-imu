@@ -5,6 +5,7 @@ from .BaseIMU import BaseIMU, IMUData
 
 class FakeIMU(BaseIMU):
     def __init__(self, *args, sample_filename="data/sample_data.csv", **kwargs):
+        super().__init__()
         self.sample_filename = sample_filename
         self.file = open(sample_filename, "r+")
 
@@ -36,6 +37,7 @@ class FakeIMU(BaseIMU):
         ) = (float(i) for i in data.split(","))
 
         return IMUData(
+            self._next_counter(),
             "test-run",
             time.time_ns() / 1e6,
             accel_x,

@@ -7,6 +7,7 @@ from typing_extensions import override
 class IMUData:
     """Convenience class for keeping data read from the IMU"""
 
+    counter: int
     dev_id: str
     time: float
 
@@ -29,7 +30,7 @@ class IMUData:
     @override
     def __str__(self):
         return (
-            f"{self.dev_id},{self.time},{self.accel_x},{self.accel_y},{self.accel_z},"
+            f"{self.counter},{self.dev_id},{self.time},{self.accel_x},{self.accel_y},{self.accel_z},"
             + f"{self.gyro_x},{self.gyro_y},{self.gyro_z},{self.mag_x},{self.mag_y},"
             + f"{self.mag_z},{self.yaw},{self.pitch},{self.roll}"
         )

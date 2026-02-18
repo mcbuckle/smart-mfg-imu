@@ -25,6 +25,7 @@ class BNO08X_YPR(BNO08X_I2C, BaseIMU):
         report_interval_ms=10,
         **kwargs,
     ):
+        BaseIMU.__init__(self)
         # The BNO08X can be at either address 0x4A or 0x4B
         # The adafruit library expects 0x4A, but we typically use 0x4B
         try:
@@ -86,6 +87,7 @@ class BNO08X_YPR(BNO08X_I2C, BaseIMU):
         rot_y, rot_p, rot_r = self._quat_to_ypr(self.quaternion)
 
         return IMUData(
+            self._next_counter(),
             "bno085-testing",
             read_time,
             accel_x,
