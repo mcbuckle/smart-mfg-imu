@@ -31,3 +31,5 @@ CSV header:
 MQTT payload order:
 
 `counter,time_ms,accel_x,accel_y,accel_z,gyro_x,gyro_y,gyro_z,mag_x,mag_y,mag_z,yaw,pitch,roll`
+
+Units: `accel_*` in m/s², `gyro_*` in rad/s, and `yaw/pitch/roll` in degrees.

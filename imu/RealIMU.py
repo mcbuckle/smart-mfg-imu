@@ -1,4 +1,3 @@
-import math
 import time
 from dataclasses import dataclass
 
@@ -94,9 +93,9 @@ class BNO08X_YPR(BNO08X_I2C, BaseIMU):
             accel_x,
             accel_y,
             accel_z,
-            math.degrees(gyro_x),
-            math.degrees(gyro_y),
-            math.degrees(gyro_z),
+            gyro_x,
+            gyro_y,
+            gyro_z,
             mag_x,
             mag_y,
             mag_z,
