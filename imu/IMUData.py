@@ -9,7 +9,8 @@ class IMUData:
 
     counter: int
     dev_id: str
-    time: float
+    capture_time_ms: int
+    recorded_at_time_ms: int
 
     accel_x: float
     accel_y: float
@@ -30,7 +31,8 @@ class IMUData:
     @override
     def __str__(self):
         return (
-            f"{self.counter},{self.dev_id},{self.time},{self.accel_x},{self.accel_y},{self.accel_z},"
+            f"{self.counter},{self.dev_id},{self.capture_time_ms},{self.recorded_at_time_ms},"
+            + f"{self.accel_x},{self.accel_y},{self.accel_z},"
             + f"{self.gyro_x},{self.gyro_y},{self.gyro_z},{self.mag_x},{self.mag_y},"
             + f"{self.mag_z},{self.yaw},{self.pitch},{self.roll}"
         )

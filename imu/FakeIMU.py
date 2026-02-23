@@ -10,7 +10,7 @@ class FakeIMU(BaseIMU):
         self.file = open(sample_filename, "r+")
 
     def read_data(self):
-        # "dev_id,time_ms,datetime,"
+        # "counter,dev_id,capture_time_ms,recorded_at_time_ms,"
         # + "accel_x,accel_y,accel_z,"
         # + "gyro_x,gyro_y,gyro_z,"
         # + "mag_x,mag_y,mag_z,"
@@ -39,7 +39,8 @@ class FakeIMU(BaseIMU):
         return IMUData(
             self._next_counter(),
             "test-run",
-            time.time_ns() / 1e6,
+            int(time.time_ns() / 1e6),
+            0,
             accel_x,
             accel_y,
             accel_z,

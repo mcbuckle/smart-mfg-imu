@@ -36,7 +36,8 @@ def test_data_writer_includes_counter_in_csv_and_mqtt(monkeypatch, tmp_path):
         sample = IMUData(
             1523,
             "test-device",
-            1711111111111.0,
+            1711111111111,
+            0,
             1.0,
             2.0,
             3.0,
@@ -54,9 +55,17 @@ def test_data_writer_includes_counter_in_csv_and_mqtt(monkeypatch, tmp_path):
         writer.write_data(sample)
 
         assert writer.mqtt_client.messages[0].startswith("1523,")
+        mqtt_fields = writer.mqtt_client.messages[0].split(",")
+        assert mqtt_fields[0] == "1523"
+        assert mqtt_fields[1] == "test-device"
+        assert mqtt_fields[2] == "1711111111111"
+        assert int(mqtt_fields[3]) >= 1711111111111
 
     lines = output_csv.read_text(encoding="utf-8").splitlines()
 
-    assert lines[0] == "counter,time_ms,datetime,dev_id,accel_x,accel_y,accel_z,gyro_x,gyro_y,gyro_z,mag_x,mag_y,mag_z,yaw,pitch,roll"
-    assert lines[1].startswith("1523,1711111111111.0,")
-    assert ",test-device," in lines[1]
+    assert lines[0] == "counter,dev_id,capture_time_ms,recorded_at_time_ms,accel_x,accel_y,accel_z,gyro_x,gyro_y,gyro_z,mag_x,mag_y,mag_z,yaw,pitch,roll"
+    csv_fields = lines[1].split(",")
+    assert csv_fields[0] == "1523"
+    assert csv_fields[1] == "test-device"
+    assert csv_fields[2] == "1711111111111"
+    assert int(csv_fields[3]) >= 1711111111111

@@ -80,7 +80,7 @@ class BNO08X_YPR(BNO08X_I2C, BaseIMU):
         """
         self._process_available_packets()
 
-        read_time = int(time.time_ns() / 1e6)
+        capture_time_ms = int(time.time_ns() / 1e6)
         accel_x, accel_y, accel_z = self.linear_acceleration
         gyro_x, gyro_y, gyro_z = self.gyro
         mag_x, mag_y, mag_z = self.magnetic
@@ -89,7 +89,8 @@ class BNO08X_YPR(BNO08X_I2C, BaseIMU):
         return IMUData(
             self._next_counter(),
             "bno085-testing",
-            read_time,
+            capture_time_ms,
+            0,
             accel_x,
             accel_y,
             accel_z,

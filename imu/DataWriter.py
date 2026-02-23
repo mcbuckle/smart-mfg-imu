@@ -1,4 +1,5 @@
 from datetime import datetime
+import time
 from typing import Any, ContextManager
 
 try:
@@ -34,7 +35,7 @@ class DataWriter(ContextManager):
     def __enter__(self):
         self.csv_file = open(self.csv_fname, "w+")
         self.csv_file.write(
-            "counter,time_ms,datetime,dev_id,"
+            "counter,dev_id,capture_time_ms,recorded_at_time_ms,"
             + "accel_x,accel_y,accel_z,"
             + "gyro_x,gyro_y,gyro_z,"
             + "mag_x,mag_y,mag_z,"
@@ -88,6 +89,7 @@ class DataWriter(ContextManager):
         return False
 
     def write_data(self, data: IMUData):
+        data.recorded_at_time_ms = int(time.time_ns() / 1e6)
         self._output_to_csv(data)
 
         if self.mqtt_client:
@@ -97,14 +99,14 @@ class DataWriter(ContextManager):
         """Write one CSV row.
 
         CSV field order:
-        counter,time_ms,datetime,dev_id,
+        counter,dev_id,capture_time_ms,recorded_at_time_ms,
         accel_x,accel_y,accel_z,
         gyro_x,gyro_y,gyro_z,
         mag_x,mag_y,mag_z,
         yaw,pitch,roll
         """
         out = (
-            f"{data.counter},{data.time},{datetime.fromtimestamp(data.time / 1000)},{data.dev_id},{data.accel_x},{data.accel_y},{data.accel_z},"
+            f"{data.counter},{data.dev_id},{data.capture_time_ms},{data.recorded_at_time_ms},{data.accel_x},{data.accel_y},{data.accel_z},"
             + f"{data.gyro_x},{data.gyro_y},{data.gyro_z},{data.mag_x},{data.mag_y},"
             + f"{data.mag_z},{data.yaw},{data.pitch},{data.roll}"
         )
@@ -114,14 +116,15 @@ class DataWriter(ContextManager):
         """Publish one MQTT payload.
 
         MQTT field order:
-        counter,time_ms,
+        counter,dev_id,capture_time_ms,recorded_at_time_ms,
         accel_x,accel_y,accel_z,
         gyro_x,gyro_y,gyro_z,
         mag_x,mag_y,mag_z,
         yaw,pitch,roll
         """
         self.mqtt_client.publish(
-            f"{data.counter},{data.time},{data.accel_x},{data.accel_y},{data.accel_z},"
+            f"{data.counter},{data.dev_id},{data.capture_time_ms},{data.recorded_at_time_ms},"
+            + f"{data.accel_x},{data.accel_y},{data.accel_z},"
             + f"{data.gyro_x},{data.gyro_y},{data.gyro_z},{data.mag_x},{data.mag_y},"
             + f"{data.mag_z},{data.yaw},{data.pitch},{data.roll}"
         )
