@@ -88,7 +88,6 @@ class BNO08X_YPR(BNO08X_I2C, BaseIMU):
 
         return IMUData(
             self._next_counter(),
-            "bno085-testing",
             capture_time_ms,
             0,
             accel_x,
