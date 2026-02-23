@@ -10,6 +10,7 @@ from adafruit_bno08x import (
     BNO_REPORT_LINEAR_ACCELERATION,
     BNO_REPORT_MAGNETOMETER,
     BNO_REPORT_ROTATION_VECTOR,
+    PacketError,
 )
 from adafruit_bno08x.i2c import BNO08X_I2C
 from typing_extensions import override
@@ -103,6 +104,36 @@ class BNO08X_YPR(BNO08X_I2C, BaseIMU):
             rot_p,
             rot_r,
         )
+
+    def _process_available_packets(self, max_packets: int | None = None) -> None:
+        """
+        Work around intermittent short packets on the SHTP command channels.
+
+        Some BNO086 firmwares may emit 2-byte command-channel packets while features
+        are being enabled. The upstream parser treats these as batched sensor reports
+        and raises RuntimeError("Unprocessable Batch bytes", 2).
+        """
+        processed_count = 0
+        while self._data_ready:
+            if max_packets and processed_count > max_packets:
+                return
+
+            try:
+                new_packet = self._read_packet()
+            except PacketError:
+                continue
+
+            if new_packet.channel_number in (0, 1):
+                continue
+
+            try:
+                self._handle_packet(new_packet)
+            except RuntimeError as error:
+                if error.args and error.args[0] == "Unprocessable Batch bytes":
+                    continue
+                raise
+
+            processed_count += 1
 
     @property
     def rotation(self) -> tuple[float, float, float] | None:
