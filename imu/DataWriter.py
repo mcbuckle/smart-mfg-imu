@@ -81,11 +81,21 @@ class DataWriter(ContextManager):
 
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.csv_file.close()
+    def __exit__(self, exc_type, exc_value, tb):
+        # Always close CSV
+        try:
+            if getattr(self, "csv_file", None):
+                self.csv_file.close()
+        except Exception:
+            pass
 
-        if self.mqtt_client:
-            self.mqtt_client.disconnect()
+        # Never raise on disconnect
+        if getattr(self, "mqtt_client", None):
+            try:
+                self.mqtt_client.disconnect()
+            except Exception:
+                pass
+
         return False
 
     def write_data(self, data: IMUData):
