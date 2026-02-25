@@ -15,6 +15,7 @@ For now, you must do the following:
     b. Run `python -m imu -u` to see real-time data being collected
     c. Run `python -m imu -t` to use fake/sample IMU data
     d. Run `python -m imu -t -u` to use fake/sample IMU data with UI
+    e. Run `python -m imu -u --tare` to zero yaw/pitch/roll at startup
 
 # Testing
 Run unit tests with:
