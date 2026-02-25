@@ -26,6 +26,10 @@ class BNO08X_YPR(BNO08X_I2C, BaseIMU):
         **kwargs,
     ):
         BaseIMU.__init__(self)
+        self._yaw_offset = 0.0
+        self._pitch_offset = 0.0
+        self._roll_offset = 0.0
+
         # The BNO08X can be at either address 0x4A or 0x4B
         # The adafruit library expects 0x4A, but we typically use 0x4B
         try:
@@ -85,6 +89,9 @@ class BNO08X_YPR(BNO08X_I2C, BaseIMU):
         gyro_x, gyro_y, gyro_z = self.gyro
         mag_x, mag_y, mag_z = self.magnetic
         rot_y, rot_p, rot_r = self._quat_to_ypr(self.quaternion)
+        rot_y = self._wrap_angle(rot_y - self._yaw_offset)
+        rot_p = self._wrap_angle(rot_p - self._pitch_offset)
+        rot_r = self._wrap_angle(rot_r - self._roll_offset)
 
         return IMUData(
             self._next_counter(),
@@ -103,6 +110,19 @@ class BNO08X_YPR(BNO08X_I2C, BaseIMU):
             rot_p,
             rot_r,
         )
+
+    @staticmethod
+    def _wrap_angle(deg):
+        return (deg + 180) % 360 - 180
+
+    def tare(self):
+        """
+        Sets the current yaw, pitch, roll as the zero reference.
+        """
+        rot_y, rot_p, rot_r = self.rotation
+        self._yaw_offset = rot_y
+        self._pitch_offset = rot_p
+        self._roll_offset = rot_r
 
     def _process_available_packets(self, max_packets: int | None = None) -> None:
         """

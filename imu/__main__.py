@@ -34,6 +34,11 @@ if __name__ == "__main__":
         help="Run the program in test mode, which does not require a physical IMU connection",
         action="store_true",
     )
+    parser.add_argument(
+        "--tare",
+        help="Tare (zero) yaw/pitch/roll immediately after IMU connection",
+        action="store_true",
+    )
     args = parser.parse_args()
 
     if args.test:
@@ -42,6 +47,9 @@ if __name__ == "__main__":
         from .RealIMU import IMU
 
     imu = IMU.get_conn()
+
+    if args.tare and hasattr(imu, "tare"):
+        imu.tare()
 
     if args.ui:
         wrapper(ui, imu)
