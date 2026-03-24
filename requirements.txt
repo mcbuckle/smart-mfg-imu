@@ -2,3 +2,7 @@ Adafruit-Blinka
 adafruit-circuitpython-bno08x
 numpy
 facade-sdk
+adafruit-blinka
+adafruit-circuitpython-bno08x
+numpy
+paho-mqtt

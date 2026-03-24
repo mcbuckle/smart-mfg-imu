@@ -5,6 +5,9 @@ services:
     devices:
       - "/dev/i2c-1:/dev/i2c-1"
     network_mode: host
+    environment:
+      - BLINKA_FORCEBOARD=RASPBERRY_PI
+      - BLINKA_FORCECHIP=BCM2XXX
     volumes:
       - ./data:/app/data
     restart: unless-stopped
